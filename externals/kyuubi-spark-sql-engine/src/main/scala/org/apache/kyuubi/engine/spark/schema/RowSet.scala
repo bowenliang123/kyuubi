@@ -18,8 +18,10 @@
 package org.apache.kyuubi.engine.spark.schema
 
 import java.nio.ByteBuffer
+import java.util.concurrent.ForkJoinPool
 
 import scala.collection.JavaConverters._
+import scala.collection.parallel
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.execution.HiveResult
@@ -62,11 +64,16 @@ object RowSet {
   def toTRowSet(
       rows: Seq[Row],
       schema: StructType,
-      protocolVersion: TProtocolVersion): TRowSet = {
+      protocolVersion: TProtocolVersion,
+      isPar: Boolean = false): TRowSet = {
     if (protocolVersion.getValue < TProtocolVersion.HIVE_CLI_SERVICE_PROTOCOL_V6.getValue) {
       toRowBasedSet(rows, schema)
     } else {
-      toColumnBasedSet(rows, schema)
+      if (isPar) {
+        toColumnBasedSetPar(rows, schema)
+      } else {
+        toColumnBasedSet(rows, schema)
+      }
     }
   }
 
@@ -105,6 +112,25 @@ object RowSet {
       tColumns.add(tColumn)
       i += 1
     }
+    tRowSet.setColumns(tColumns)
+    tRowSet
+  }
+
+  private val customTaskSupport = new parallel.ForkJoinTaskSupport(new ForkJoinPool())
+
+  def toColumnBasedSetPar(rows: Seq[Row], schema: StructType): TRowSet = {
+    val rowSize = rows.length
+    val tRowSet = new TRowSet(0, new java.util.ArrayList[TRow](rowSize))
+    val timeFormatters = HiveResult.getTimeFormatters
+    val columnSize = schema.length
+    val tColumns = new java.util.ArrayList[TColumn](columnSize)
+    val parSeq = (0 until columnSize).par
+    parSeq.tasksupport = customTaskSupport
+    parSeq.map { i =>
+      val field = schema(i)
+      val tColumn = toTColumn(rows, i, field.dataType, timeFormatters)
+      (i, tColumn)
+    }.toStream.sortBy(_._1).map(_._2).foreach(tColumns.add)
     tRowSet.setColumns(tColumns)
     tRowSet
   }

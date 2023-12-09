@@ -70,22 +70,26 @@ class TRowSetBenchmark extends KyuubiFunSuite with RowSetHelper with KyuubiBench
         warmupTime = 3.seconds,
         output = output)
 
-    schemaStructFields.zipWithIndex.foreach {
-      case (field, idx) =>
-        val rowsOfSingleType = allRows.map(row => Row(row.get(idx)))
-        val schemaOfSingleType = StructType(Seq(field))
-
-        val commentOrName = field.getComment().getOrElse(field.dataType.typeName)
-        benchmark.addCase(s"$commentOrName", rotations) { _ =>
-          benchmarkToTRowSet(
-            rowsOfSingleType,
-            schemaOfSingleType,
-            protocolVersion)
-        }
-    }
+//    schemaStructFields.zipWithIndex.foreach {
+//      case (field, idx) =>
+//        val rowsOfSingleType = allRows.map(row => Row(row.get(idx)))
+//        val schemaOfSingleType = StructType(Seq(field))
+//
+//        val commentOrName = field.getComment().getOrElse(field.dataType.typeName)
+//        benchmark.addCase(s"$commentOrName", rotations) { _ =>
+//          benchmarkToTRowSet(
+//            rowsOfSingleType,
+//            schemaOfSingleType,
+//            protocolVersion)
+//        }
+//    }
 
     benchmark.addCase(s"with all types", rotations) { _ =>
       benchmarkToTRowSet(allRows, schema, protocolVersion)
+    }
+
+    benchmark.addCase(s"with all types - parallel", rotations) { _ =>
+      benchmarkToTRowSet(allRows, schema, protocolVersion, isPar = true)
     }
 
     benchmark.run()
@@ -94,7 +98,8 @@ class TRowSetBenchmark extends KyuubiFunSuite with RowSetHelper with KyuubiBench
   private def benchmarkToTRowSet(
       rows: Seq[Row],
       schema: StructType,
-      protocolVersion: TProtocolVersion): Unit = {
-    RowSet.toTRowSet(rows, schema, protocolVersion)
+      protocolVersion: TProtocolVersion,
+      isPar: Boolean = false): Unit = {
+    RowSet.toTRowSet(rows, schema, protocolVersion, isPar)
   }
 }
