@@ -70,19 +70,31 @@ class TRowSetBenchmark extends KyuubiFunSuite with RowSetHelper with KyuubiBench
         warmupTime = 3.seconds,
         output = output)
 
-//    schemaStructFields.zipWithIndex.foreach {
-//      case (field, idx) =>
-//        val rowsOfSingleType = allRows.map(row => Row(row.get(idx)))
-//        val schemaOfSingleType = StructType(Seq(field))
-//
-//        val commentOrName = field.getComment().getOrElse(field.dataType.typeName)
-//        benchmark.addCase(s"$commentOrName", rotations) { _ =>
-//          benchmarkToTRowSet(
-//            rowsOfSingleType,
-//            schemaOfSingleType,
-//            protocolVersion)
-//        }
-//    }
+    schemaStructFields.zipWithIndex.foreach {
+      case (field, idx) =>
+        val times = 100
+        val rowsOfSingleType = allRows.map(row => {
+          val value = row.get(idx)
+          Row(Seq.fill(times)(value): _*)
+        })
+        val schemaOfSingleType = StructType(Seq.fill(times)(field))
+
+        val commentOrName = field.getComment().getOrElse(field.dataType.typeName)
+        benchmark.addCase(s"$commentOrName", rotations) { _ =>
+          benchmarkToTRowSet(
+            rowsOfSingleType,
+            schemaOfSingleType,
+            protocolVersion)
+        }
+
+        benchmark.addCase(s"$commentOrName - par", rotations) { _ =>
+          benchmarkToTRowSet(
+            rowsOfSingleType,
+            schemaOfSingleType,
+            protocolVersion,
+            isPar = true)
+        }
+    }
 
     benchmark.addCase(s"with all types", rotations) { _ =>
       benchmarkToTRowSet(allRows, schema, protocolVersion)
