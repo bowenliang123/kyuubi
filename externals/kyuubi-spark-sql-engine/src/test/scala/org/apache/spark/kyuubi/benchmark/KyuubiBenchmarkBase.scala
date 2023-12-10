@@ -56,7 +56,7 @@ trait KyuubiBenchmarkBase {
     if (!file.exists()) {
       file.createNewFile()
     }
-    output = Some(new FileOutputStream(file))
+    output = Some(new FileOutputStream(file, true))
 
     func
 

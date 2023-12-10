@@ -63,12 +63,12 @@ class TRowSetBenchmark extends KyuubiFunSuite with RowSetHelper with KyuubiBench
   private def tRowSetGenerationBenchmark(
       protocolVersion: TProtocolVersion,
       rowSetType: String): Unit = {
-    val benchmark =
-      new Benchmark(
-        s"$rowSetType TRowSet benchmark",
-        rowCount,
-        warmupTime = 3.seconds,
-        output = output)
+//    val benchmark =
+//      new Benchmark(
+//        s"$rowSetType TRowSet benchmark",
+//        rowCount,
+//        warmupTime = 3.seconds,
+//        output = output)
 
     schemaStructFields.zipWithIndex.foreach {
       case (field, idx) =>
@@ -80,6 +80,14 @@ class TRowSetBenchmark extends KyuubiFunSuite with RowSetHelper with KyuubiBench
         val schemaOfSingleType = StructType(Seq.fill(times)(field))
 
         val commentOrName = field.getComment().getOrElse(field.dataType.typeName)
+
+        val benchmark =
+          new Benchmark(
+            s"$rowCount rows * $times cols benchmark",
+            rowCount,
+            warmupTime = 3.seconds,
+            output = output)
+
         benchmark.addCase(s"$commentOrName", rotations) { _ =>
           benchmarkToTRowSet(
             rowsOfSingleType,
@@ -94,17 +102,19 @@ class TRowSetBenchmark extends KyuubiFunSuite with RowSetHelper with KyuubiBench
             protocolVersion,
             isPar = true)
         }
+
+        benchmark.run()
     }
 
-    benchmark.addCase(s"with all types", rotations) { _ =>
-      benchmarkToTRowSet(allRows, schema, protocolVersion)
-    }
-
-    benchmark.addCase(s"with all types - parallel", rotations) { _ =>
-      benchmarkToTRowSet(allRows, schema, protocolVersion, isPar = true)
-    }
-
-    benchmark.run()
+//    benchmark.addCase(s"with all types", rotations) { _ =>
+//      benchmarkToTRowSet(allRows, schema, protocolVersion)
+//    }
+//
+//    benchmark.addCase(s"with all types - parallel", rotations) { _ =>
+//      benchmarkToTRowSet(allRows, schema, protocolVersion, isPar = true)
+//    }
+//
+//    benchmark.run()
   }
 
   private def benchmarkToTRowSet(

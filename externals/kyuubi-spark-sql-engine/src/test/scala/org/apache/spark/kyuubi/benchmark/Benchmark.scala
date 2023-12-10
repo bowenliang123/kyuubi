@@ -111,8 +111,8 @@ class Benchmark(
 
     val firstBest = results.head.bestMs
     // The results are going to be processor specific so it is useful to include that.
-    out.println(Benchmark.getJVMOSInfo())
-    out.println(Benchmark.getProcessorName())
+    // out.println(Benchmark.getJVMOSInfo())
+    // out.println(Benchmark.getProcessorName())
     val nameLen = Math.max(40, Math.max(name.length, benchmarks.map(_.name.length).max))
     out.printf(
       s"%-${nameLen}s %14s %14s %11s %12s %13s %10s\n",
