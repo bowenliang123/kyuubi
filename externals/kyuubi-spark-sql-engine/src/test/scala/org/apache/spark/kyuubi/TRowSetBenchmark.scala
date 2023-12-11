@@ -40,8 +40,8 @@ import org.apache.kyuubi.shaded.hive.service.rpc.thrift.TProtocolVersion._
 class TRowSetBenchmark extends KyuubiFunSuite with RowSetHelper with KyuubiBenchmarkBase {
   private val runBenchmark = sys.env.contains("RUN_BENCHMARK")
 
-  private val rowCount = 1000
-  private val rotations = 5
+  private val rowCount = 5000
+  private val rotations = 10
   private lazy val allRows = (0 until rowCount).map(genRow)
 
   test("row-based toTRowSet benchmark") {

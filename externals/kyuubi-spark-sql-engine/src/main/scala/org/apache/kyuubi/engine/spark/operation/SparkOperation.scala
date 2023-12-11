@@ -113,6 +113,9 @@ abstract class SparkOperation(session: Session)
     s"spark.${SESSION_USER_SIGN_ENABLED.key}",
     SESSION_USER_SIGN_ENABLED.defaultVal.get)
 
+  protected val rowSetParralelExecution: Boolean =
+    session.sessionManager.getConf.get(KyuubiConf.SESSION_ENGINE_SPARK_ROWSET_PARALLEL_EXECUTION)
+
   protected def eventEnabled: Boolean = true
 
   if (eventEnabled) EventBus.post(SparkOperationEvent(this))
@@ -252,7 +255,8 @@ abstract class SparkOperation(session: Session)
             RowSet.toTRowSet(
               taken.toSeq.asInstanceOf[Seq[Row]],
               resultSchema,
-              getProtocolVersion)
+              getProtocolVersion,
+              isPar = rowSetParralelExecution)
           }
         resultRowSet.setStartRowOffset(iter.getPosition)
       }

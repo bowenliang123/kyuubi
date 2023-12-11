@@ -3283,4 +3283,12 @@ object KyuubiConf {
       .version("1.8.1")
       .booleanConf
       .createWithDefault(false)
+
+ val SESSION_ENGINE_SPARK_ROWSET_PARALLEL_EXECUTION: ConfigEntry[Boolean] =
+    buildConf("kyuubi.session.spark.rowset.parallel.execution")
+      .doc("Whether to enable paraellel execution for RowSet generation")
+      .version("1.9.0")
+      .internal
+      .booleanConf
+      .createWithDefault(false)
 }
