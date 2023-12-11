@@ -65,11 +65,11 @@ object RowSet {
       rows: Seq[Row],
       schema: StructType,
       protocolVersion: TProtocolVersion,
-      isPar: Boolean = false): TRowSet = {
+      isParallel: Boolean = false): TRowSet = {
     if (protocolVersion.getValue < TProtocolVersion.HIVE_CLI_SERVICE_PROTOCOL_V6.getValue) {
       toRowBasedSet(rows, schema)
     } else {
-      if (isPar) {
+      if (isParallel) {
         toColumnBasedSetPar(rows, schema)
       } else {
         toColumnBasedSet(rows, schema)

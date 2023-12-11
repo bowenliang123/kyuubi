@@ -256,7 +256,7 @@ abstract class SparkOperation(session: Session)
               taken.toSeq.asInstanceOf[Seq[Row]],
               resultSchema,
               getProtocolVersion,
-              isPar = rowSetParralelExecution)
+              isParallel = rowSetParralelExecution)
           }
         resultRowSet.setStartRowOffset(iter.getPosition)
       }
