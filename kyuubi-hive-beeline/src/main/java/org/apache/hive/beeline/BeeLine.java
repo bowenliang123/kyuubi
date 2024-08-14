@@ -81,11 +81,7 @@ import jline.console.completer.Completer;
 import jline.console.completer.FileNameCompleter;
 import jline.console.completer.StringsCompleter;
 import jline.console.history.FileHistory;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hive.beeline.common.util.ShutdownHookManager;
@@ -278,121 +274,131 @@ public class BeeLine implements Closeable {
   static {
     // -d <driver class>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("driver class")
-            .withDescription("The driver class to use")
-            .create('d'));
+        Option.builder("d")
+            .hasArg()
+            .argName("driver class")
+            .desc("The driver class to use")
+            .build());
 
     // -u <database url>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("database url")
-            .withDescription("The JDBC URL to connect to")
-            .create('u'));
+        Option.builder("u")
+            .hasArg()
+            .argName("database url")
+            .desc("The JDBC URL to connect to")
+            .build());
 
     // -c <named url in the beeline-hs2-connection.xml>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("named JDBC URL in beeline-site.xml")
-            .withDescription(
+        Option.builder("c")
+            .hasArg()
+            .argName("named JDBC URL in beeline-site.xml")
+            .desc(
                 "The named JDBC URL to connect to, which should be present in "
                     + "beeline-site.xml as the value of beeline.hs2.jdbc.url.<namedUrl>")
-            .create('c'));
+            .build());
 
     // -r
     options.addOption(
-        OptionBuilder.withLongOpt("reconnect")
-            .withDescription("Reconnect to last saved connect url (in conjunction with !save)")
-            .create('r'));
+        Option.builder("r")
+            .longOpt("reconnect")
+            .desc("Reconnect to last saved connect url (in conjunction with !save)")
+            .build());
 
     // -n <username>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("username")
-            .withDescription("The username to connect as")
-            .create('n'));
+        Option.builder("n")
+            .hasArg()
+            .argName("username")
+            .desc("The username to connect as")
+            .build());
 
     // -p <password>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("password")
-            .withDescription("The password to connect as")
-            .hasOptionalArg()
-            .create('p'));
+        Option.builder()
+            .hasArg()
+            .argName("password")
+            .desc("The password to connect as")
+            .optionalArg(true)
+            .build());
 
     // -w (or) --password-file <file>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("password-file")
-            .withDescription("The password file to read password from")
-            .withLongOpt("password-file")
-            .create('w'));
+        Option.builder("w")
+            .hasArg()
+            .argName("password-file")
+            .desc("The password file to read password from")
+            .longOpt("password-file")
+            .build());
 
     // -a <authType>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("authType")
-            .withDescription("The authentication type")
-            .create('a'));
+        Option.builder("a").hasArg().argName("authType").desc("The authentication type").build());
 
     // -i <init file>
     options.addOption(
-        OptionBuilder.hasArgs()
-            .withArgName("init")
-            .withDescription("The script file for initialization")
-            .create('i'));
+        Option.builder("i")
+            .hasArgs()
+            .argName("init")
+            .desc("The script file for initialization")
+            .build());
 
     // -e <query>
     options.addOption(
-        OptionBuilder.hasArgs()
-            .withArgName("query")
-            .withDescription("The query that should be executed")
-            .create('e'));
+        Option.builder("e")
+            .hasArgs()
+            .argName("query")
+            .desc("The query that should be executed")
+            .build());
 
     // -f <script file>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withArgName("file")
-            .withDescription("The script file that should be executed")
-            .create('f'));
+        Option.builder("f")
+            .hasArg()
+            .argName("file")
+            .desc("The script file that should be executed")
+            .build());
 
     // -help
-    options.addOption(
-        OptionBuilder.withLongOpt("help").withDescription("Display this message").create('h'));
+    options.addOption(Option.builder("h").longOpt("help").desc("Display this message").build());
 
     // Substitution option --hivevar
     options.addOption(
-        OptionBuilder.withValueSeparator()
-            .hasArgs(2)
-            .withArgName("key=value")
-            .withLongOpt("hivevar")
-            .withDescription("Hive variable name and value")
-            .create());
+        Option.builder()
+            .valueSeparator()
+            .numberOfArgs(2)
+            .argName("key=value")
+            .longOpt("hivevar")
+            .desc("Hive variable name and value")
+            .build());
 
     // hive conf option --hiveconf
     options.addOption(
-        OptionBuilder.withValueSeparator()
-            .hasArgs(2)
-            .withArgName("property=value")
-            .withLongOpt("hiveconf")
-            .withDescription("Use value for given property")
-            .create());
+        Option.builder()
+            .valueSeparator()
+            .numberOfArgs(2)
+            .argName("property=value")
+            .longOpt("hiveconf")
+            .desc("Use value for given property")
+            .build());
 
     // conf option --conf
     options.addOption(
-        OptionBuilder.withValueSeparator()
-            .hasArgs(2)
-            .withArgName("property=value")
-            .withLongOpt("conf")
-            .withDescription("Alias of --hiveconf")
-            .create());
+        Option.builder()
+            .valueSeparator()
+            .numberOfArgs(2)
+            .argName("property=value")
+            .longOpt("conf")
+            .desc("Alias of --hiveconf")
+            .build());
 
     // --property-file <file>
     options.addOption(
-        OptionBuilder.hasArg()
-            .withLongOpt("property-file")
-            .withDescription("The file to read configuration properties from")
-            .create());
+        Option.builder()
+            .hasArg()
+            .longOpt("property-file")
+            .desc("The file to read configuration properties from")
+            .build());
   }
 
   static Manifest getManifest() throws IOException {
