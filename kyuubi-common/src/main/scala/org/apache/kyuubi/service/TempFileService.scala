@@ -49,7 +49,7 @@ class TempFileService(name: String) extends AbstractService(name) {
           debug(s"Remove expired temp file: $pathStr")
           cleanupFilePath(pathStr)
         })
-      maxCountOpt.foreach(builder.maximumSize(_))
+      maxCountOpt.filter(_ > 0).foreach(builder.maximumSize(_))
       builder.build()
     }
 

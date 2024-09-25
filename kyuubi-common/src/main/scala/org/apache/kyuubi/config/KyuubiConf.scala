@@ -3125,7 +3125,8 @@ object KyuubiConf {
 
   val SERVER_TEMP_FILE_EXPIRE_MAX_COUNT: OptionalConfigEntry[Int] =
     buildConf("kyuubi.server.tempFile.maxCount")
-      .doc("The upper threshold size of server-side temporary file paths to cleanup")
+      .doc("The upper threshold size of server-side temporary file paths to cleanup," +
+        " if the value is set and greater than 0")
       .version("1.10.0")
       .serverOnly
       .intConf
